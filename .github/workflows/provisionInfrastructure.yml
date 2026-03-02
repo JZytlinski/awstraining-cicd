@@ -52,8 +52,7 @@ jobs:
 
       - name: Run setup_new_region.sh
         shell: bash
-        run:
-  
+        run: |
           cd aws-infrastructure/terraform
           chmod +x setup_new_region.sh
           chmod +x w2.sh
