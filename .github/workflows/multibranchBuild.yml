@@ -21,7 +21,7 @@ jobs:
     #    TODO call datacenterMap reusable workflow to get AWS_ACCOUNT, PROFILE, REGION and other variables based on hubEnv input
     uses: ./.github/workflows/datacenterMap.yml
     with:
-      hubEnv: ${{ github.event.inputs.hubEnv }}
+      hubEnv: BACKEND_EMEA_TEST
     secrets: inherit
 
 
