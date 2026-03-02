@@ -52,8 +52,11 @@ jobs:
 
       - name: Run setup_new_region.sh
         shell: bash
-        run: 
-          chmod +x setup_new_region.sh w2.sh
+        run:
+  
+          cd aws-infrastructure/terraform
+          chmod +x setup_new_region.sh
+          chmod +x w2.sh
           './setup_new_region.sh w2.sh ${{ env.PROFILE }} ${{ env.AWS_REGION }} apply -auto-approve'
 
 
