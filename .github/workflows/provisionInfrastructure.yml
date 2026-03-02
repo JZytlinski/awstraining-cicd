@@ -19,6 +19,7 @@ jobs:
     uses: ./.github/workflows/datacenterMap.yml
     with:
       hubEnv: ${{ github.event.inputs.hubEnv }}
+    secrets: inherit
 
   terraform:
     #    TODO Checkout, Install Terraform, Configure AWS profile, Run Terraform apply with setup_new_region.sh script 
@@ -27,14 +28,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      HUB:           ${{ needs.properties.outputs.HUB }}
-      STAGE:         ${{ needs.properties.outputs.STAGE }}
       AWS_ACCOUNT:   ${{ needs.properties.outputs.AWS_ACCOUNT }}
       AWS_REGION:    ${{ needs.properties.outputs.REGION }}
       PROFILE:       ${{ needs.properties.outputs.PROFILE }}
-      CLUSTER_NAME:  ${{ needs.properties.outputs.CLUSTER_NAME }}
-      SERVICE_NAME:  ${{ needs.properties.outputs.SERVICE_NAME }}
-      TASK_NAME:     ${{ needs.properties.outputs.TASK_NAME }}
       HUB_ENV:       ${{ github.event.inputs.hubEnv }}
 
     steps:
@@ -58,7 +54,7 @@ jobs:
         shell: bash
         run: 
           chmod +x setup_new_region.sh w2.sh
-          ./setup_new_region.sh w2.sh "$PROFILE" "$AWS_REGION" apply -auto-approve
+          ./setup_new_region.sh w2.sh ${{ env.PROFILE }} ${{ env.AWS_REGION }} apply -auto-approve
 
 
 
