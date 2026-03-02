@@ -30,8 +30,10 @@ jobs:
     env:
       AWS_ACCOUNT:   ${{ needs.properties.outputs.AWS_ACCOUNT }}
       AWS_REGION:    ${{ needs.properties.outputs.REGION }}
-      PROFILE:       ${{ needs.properties.outputs.PROFILE }}
+      AWS_PROFILE:       ${{ needs.properties.outputs.PROFILE }}
       HUB_ENV:       ${{ github.event.inputs.hubEnv }}
+      AWS_KEY:       ${{ secrets.BACKEND_EMEA_TEST_AWS_KEY }}
+      AWS_SECRET:    ${{ secrets.BACKEND_EMEA_TEST_AWS_SECRET }}
 
     steps:
 
@@ -43,12 +45,12 @@ jobs:
         with:
           terraform_version: 1.7.0
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.BACKEND_EMEA_TEST_AWS_KEY }}
-          aws-secret-access-key: ${{ secrets.BACKEND_EMEA_TEST_AWS_SECRET }}
-          aws-region: ${{ env.AWS_REGION }}
+      - name: Configure AWS profile
+        run: |
+          mkdir -p ~/.aws
+          echo "[${{ env.AWS_PROFILE }}]" > ~/.aws/credentials
+          echo "aws_access_key_id = ${{ env.AWS_KEY }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key = ${{ env.AWS_SECRET }}" >> ~/.aws/credentials
 
       - name: Run setup_new_region.sh
         shell: bash
