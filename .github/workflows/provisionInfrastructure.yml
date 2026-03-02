@@ -31,7 +31,7 @@ jobs:
       STAGE:         ${{ needs.properties.outputs.STAGE }}
       AWS_ACCOUNT:   ${{ needs.properties.outputs.AWS_ACCOUNT }}
       AWS_REGION:    ${{ needs.properties.outputs.REGION }}
-      AWS_PROFILE:   ${{ needs.properties.outputs.PROFILE }}
+      PROFILE:       ${{ needs.properties.outputs.PROFILE }}
       CLUSTER_NAME:  ${{ needs.properties.outputs.CLUSTER_NAME }}
       SERVICE_NAME:  ${{ needs.properties.outputs.SERVICE_NAME }}
       TASK_NAME:     ${{ needs.properties.outputs.TASK_NAME }}
