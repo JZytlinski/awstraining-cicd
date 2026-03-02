@@ -4,7 +4,7 @@ run-name: Multibranch ${{ github.head_ref || github.ref_name }}
 on:
   push:
     branches:
-      - main
+      - master
       - release/*
       - feature/*
       - bugfix/*
@@ -32,7 +32,7 @@ jobs:
     #Deploy Amazon ECS task definition, 
     #Run smoke tests if not skipped
     
-    needs: properties
+    needs: [properties]
     runs-on: ubuntu-latest
     env:
           AWS_ACCOUNT: ${{ needs.properties.outputs.AWS_ACCOUNT }}
