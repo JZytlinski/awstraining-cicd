@@ -38,7 +38,7 @@ jobs:
           AWS_ACCOUNT: ${{ needs.properties.outputs.AWS_ACCOUNT }}
           AWS_KEY:  ${{ secrets.BACKEND_EMEA_TEST_AWS_KEY }}
           AWS_SECRET: ${{ secrets.BACKEND_EMEA_TEST_AWS_SECRET }}
-          REGION: ${{ needs.properties.outputs.REGION }}
+          AWS_REGION: ${{ needs.properties.outputs.REGION }}
           CLUSTER_NAME: ${{ needs.properties.outputs.CLUSTER_NAME }}
           SERVICE_NAME: ${{ needs.properties.outputs.SERVICE_NAME }}
           SKIP_SMOKE_TESTS: ${{ (github.event.inputs.skipSmokeTests != null && github.event.inputs.skipSmokeTests == 'true') || 'false' }}
@@ -71,7 +71,7 @@ jobs:
         with:
           aws-access-key-id: ${{ env.AWS_KEY }}
           aws-secret-access-key: ${{ env.AWS_SECRET }}
-          aws-region: ${{ env.REGION }}
+          aws-region: ${{ env.AWS_REGION }}
 
 
       - name: Login to Amazon ECR
