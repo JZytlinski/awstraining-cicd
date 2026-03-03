@@ -15,13 +15,20 @@ on:
         type: boolean
         required: false
         default: false
+      hubEnv:
+        description: Select target hub and stage
+        required: true
+        type: choice
+        options:
+          - 'BACKEND_EMEA_TEST'
+          - 'BACKEND_US_TEST'
 
 jobs:
   properties:
     #    TODO call datacenterMap reusable workflow to get AWS_ACCOUNT, PROFILE, REGION and other variables based on hubEnv input
     uses: ./.github/workflows/datacenterMap.yml
     with:
-      hubEnv: BACKEND_EMEA_TEST
+      hubEnv: ${{ github.event.inputs.hubEnv }}
     secrets: inherit
 
 
@@ -36,20 +43,41 @@ jobs:
     runs-on: ubuntu-latest
     env:
           AWS_ACCOUNT: ${{ needs.properties.outputs.AWS_ACCOUNT }}
-          AWS_KEY:  ${{ secrets.BACKEND_EMEA_TEST_AWS_KEY }}
-          AWS_SECRET: ${{ secrets.BACKEND_EMEA_TEST_AWS_SECRET }}
+          #AWS_KEY:  ${{ secrets.BACKEND_EMEA_TEST_AWS_KEY }}
+          #AWS_SECRET: ${{ secrets.BACKEND_EMEA_TEST_AWS_SECRET }}
           AWS_REGION: ${{ needs.properties.outputs.REGION }}
           CLUSTER_NAME: ${{ needs.properties.outputs.CLUSTER_NAME }}
           SERVICE_NAME: ${{ needs.properties.outputs.SERVICE_NAME }}
           SKIP_SMOKE_TESTS: ${{ (github.event.inputs.skipSmokeTests != null && github.event.inputs.skipSmokeTests == 'true') || 'false' }}
-          SMOKETEST_BACKEND_PASSWORD: ${{ secrets.BACKEND_EMEA_TEST_SMOKETEST_BACKEND_PASSWORD }}
+          #SMOKETEST_BACKEND_PASSWORD: ${{ secrets.BACKEND_EMEA_TEST_SMOKETEST_BACKEND_PASSWORD }}
 
     steps:
 
       - name: Checkout
         uses: actions/checkout@v4
 
-      
+      - name: Set AWS creds for eu-central-1
+        if: env.AWS_REGION == 'eu-central-1'
+        run: |
+          echo "AWS_KEY=${{ secrets.BACKEND_EMEA_TEST_AWS_KEY }}" >> $GITHUB_ENV
+          echo "AWS_SECRET=${{ secrets.BACKEND_EMEA_TEST_AWS_SECRET }}" >> $GITHUB_ENV
+
+      - name: Set AWS creds for us-east-1
+        if: env.AWS_REGION == 'us-east-1'
+        run: |
+          echo "AWS_KEY=${{ secrets.BACKEND_US_TEST_AWS_KEY }}" >> $GITHUB_ENV
+          echo "AWS_SECRET=${{ secrets.BACKEND_US_TEST_AWS_SECRET }}" >> $GITHUB_ENV
+
+      - name: Set smoke test password for eu-central-1
+        if: env.AWS_REGION == 'eu-central-1'
+        run: |
+          echo "SMOKETEST_BACKEND_PASSWORD=${{ secrets.BACKEND_EMEA_TEST_SMOKETEST_BACKEND_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Set smoke test password for us-east-1
+        if: env.AWS_REGION == 'us-east-1'
+        run: |
+          echo "SMOKETEST_BACKEND_PASSWORD=${{ secrets.BACKEND_US_TEST_SMOKETEST_BACKEND_PASSWORD }}" >> $GITHUB_ENV
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -92,7 +120,7 @@ jobs:
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: assembly-fargate/src/main/resources/fargate/BACKEND_EMEA_TEST/task.json
+          task-definition: assembly-fargate/src/main/resources/fargate/${{ github.event.inputs.hubEnv }}/task.json
           service: ${{ env.SERVICE_NAME }}
           cluster: ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
@@ -102,7 +130,7 @@ jobs:
       - name: Run smoke tests
         if: ${{ env.SKIP_SMOKE_TESTS == 'false' }}
         run: |
-          mvn -f pom.xml clean test -P st,BACKEND_EMEA_TEST
+          mvn -f pom.xml clean test -P st,${{ github.event.inputs.hubEnv }}
 
 
 

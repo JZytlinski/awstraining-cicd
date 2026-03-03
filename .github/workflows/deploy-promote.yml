@@ -24,6 +24,12 @@ on:
         description: "Tag of the image to promote"
         required: true
 
+      skipSmokeTests:
+        description: Should skip smoke tests?
+        type: boolean
+        required: false
+        default: false
+
 
 jobs:
 
@@ -54,6 +60,8 @@ jobs:
       DST_REPO: backend
       IMAGE_TAG: ${{ github.event.inputs.imageTag }}
 
+      SKIP_SMOKE_TESTS: ${{ (github.event.inputs.skipSmokeTests != null && github.event.inputs.skipSmokeTests == 'true') || 'false' }}
+
 
     steps:
       - name: Checkout
@@ -70,6 +78,16 @@ jobs:
         run: |
           echo "AWS_KEY_SRC=${{ secrets.BACKEND_US_TEST_AWS_KEY }}" >> $GITHUB_ENV
           echo "AWS_SECRET_SRC=${{ secrets.BACKEND_US_TEST_AWS_SECRET }}" >> $GITHUB_ENV
+
+      - name: Set smoke test password for eu-central-1
+        if: env.AWS_REGION == 'eu-central-1'
+        run: |
+          echo "SMOKETEST_BACKEND_PASSWORD=${{ secrets.BACKEND_EMEA_TEST_SMOKETEST_BACKEND_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Set smoke test password for us-east-1
+        if: env.AWS_REGION == 'us-east-1'
+        run: |
+          echo "SMOKETEST_BACKEND_PASSWORD=${{ secrets.BACKEND_US_TEST_SMOKETEST_BACKEND_PASSWORD }}" >> $GITHUB_ENV
 
 
       - name: Set creds for target region
@@ -124,6 +142,11 @@ jobs:
           cluster: ${{ needs.targetProperties.outputs.CLUSTER_NAME }}
           service: ${{ needs.targetProperties.outputs.SERVICE_NAME }}
           wait-for-service-stability: true
+
+      - name: Run smoke tests
+        if: ${{ env.SKIP_SMOKE_TESTS == 'false' }}
+        run: |
+          mvn -f pom.xml clean test -P st,${{ github.event.inputs.toHub }}
 
   
   pipelinePassed:
