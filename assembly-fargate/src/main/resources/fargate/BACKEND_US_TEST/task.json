@@ -40,7 +40,7 @@
       ],
       "secrets": [
         {
-          "valueFrom": "<<TODO: set ARN of secrets manager>>",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:926831051300:secret:backend-secretsmanager-test-us-east-1-LC9yLO",
           "name": "SPRING_APPLICATION_JSON"
         }
       ],
@@ -57,7 +57,7 @@
       "name": "backend"
     }
   ],
-  "taskRoleArn": "<<TODO: set task role ARN>>",
+  "taskRoleArn": "arn:aws:iam::926831051300:role/backend-ecs-task-role-us-east-1",
   "requiresCompatibilities": ["FARGATE"],
   "networkMode": "awsvpc",
   "memory": "2048",
