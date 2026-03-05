@@ -40,7 +40,7 @@
       ],
       "secrets": [
         {
-          "valueFrom": "arn:aws:secretsmanager:eu-central-1:926831051300:secret:backend-secretsmanager-test-eu-central-1-2cjZIi",
+          "valueFrom": "arn:aws:secretsmanager:eu-central-1:926831051300:secret:backend-secretsmanager-test-eu-central-1-5QM9p2",
           "name": "SPRING_APPLICATION_JSON"
         }
       ],
